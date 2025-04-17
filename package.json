@@ -1,4 +1,10 @@
 {
+  "name": "document-text-extractor",
+  "version": "1.0.0",
+  "main": "api/extract-text.js",
+  "scripts": {
+    "start": "node api/extract-text.js"
+  },
   "dependencies": {
     "express": "^4.21.2",
     "mammoth": "^1.9.0",

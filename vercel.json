@@ -1,0 +1,16 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "api/extract-text.js",
+        "use": "@vercel/node"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/api/extract-text",
+        "dest": "/api/extract-text",
+        "methods": ["POST"]
+      }
+    ]
+  }
