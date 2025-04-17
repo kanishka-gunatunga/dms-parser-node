@@ -5,7 +5,6 @@ const mammoth = require('mammoth');
 const xlsx = require('xlsx');
 const officeParser = require('officeparser');
 
-// Configure multer memory storage (no disk storage on Vercel)
 const upload = multer({ storage: multer.memoryStorage() });
 
 module.exports = async (req, res) => {
@@ -13,51 +12,48 @@ module.exports = async (req, res) => {
     return res.status(405).send('Method Not Allowed');
   }
 
-  // We'll handle the file processing in a separate function
   const processFile = (file) => {
     return new Promise(async (resolve, reject) => {
       const fileExtension = file.originalname.split('.').pop().toLowerCase();
-      let content = {};
+      let fullContent = "";
 
       try {
         switch (fileExtension) {
           case 'pdf':
             const pdfData = await pdfParse(file.buffer);
-            let pages = pdfData.text.split('\n\n');
-            if (pages[0] === '') {
-              pages = pages.slice(1);
-            }
-            pages.forEach((page, index) => {
-              content[index + 1] = page.replace(/\s+/g, ' ').trim();
-            });
+            fullContent = pdfData.text.replace(/\s+/g, ' ').trim();
             break;
+            
           case 'docx':
             const docxResult = await mammoth.extractRawText({ buffer: file.buffer });
-            const docxText = docxResult.value;
-            const docxSections = docxText.replace(/\n{2,}/g, '\n').split('\n');
-            docxSections.forEach((section, index) => {
-              content[index + 1] = section.replace(/\s+/g, ' ').trim();
-            });
+            fullContent = docxResult.value.replace(/\n{2,}/g, '\n')
+                                         .replace(/\s+/g, ' ')
+                                         .trim();
             break;
+            
           case 'xlsx':
             const workbook = xlsx.read(file.buffer, { type: 'buffer' });
-            workbook.SheetNames.forEach((sheetName, sheetIndex) => {
+            fullContent = workbook.SheetNames.map(sheetName => {
               const sheet = workbook.Sheets[sheetName];
-              const sheetData = xlsx.utils.sheet_to_csv(sheet);
-              content[sheetIndex + 1] = sheetData.replace(/\s+/g, ' ').trim();
-            });
+              return xlsx.utils.sheet_to_csv(sheet);
+            }).join('\n').replace(/\s+/g, ' ').trim();
             break;
+            
           case 'pptx':
             const pptxText = await officeParser.parseOfficeAsync(file.buffer);
-            content[1] = pptxText.replace(/\s+/g, ' ').trim();
+            fullContent = pptxText.replace(/\s+/g, ' ').trim();
             break;
+            
           case 'txt':
-            content[1] = file.buffer.toString('utf8').replace(/\s+/g, ' ').trim();
+            fullContent = file.buffer.toString('utf8')
+                              .replace(/\s+/g, ' ')
+                              .trim();
             break;
+            
           default:
-            return resolve(content);
+            return resolve({ content: fullContent });
         }
-        resolve(content);
+        resolve({ content: fullContent }); 
       } catch (error) {
         reject(error);
       }
