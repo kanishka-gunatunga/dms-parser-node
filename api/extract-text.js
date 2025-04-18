@@ -16,12 +16,14 @@ module.exports = async (req, res) => {
     return new Promise(async (resolve, reject) => {
       const fileExtension = file.originalname.split('.').pop().toLowerCase();
       let fullContent = "";
+      let pageCount = 0;
 
       try {
         switch (fileExtension) {
           case 'pdf':
             const pdfData = await pdfParse(file.buffer);
             fullContent = pdfData.text.replace(/\s+/g, ' ').trim();
+            pageCount = pdfData.numpages;
             break;
             
           case 'docx':
@@ -29,6 +31,7 @@ module.exports = async (req, res) => {
             fullContent = docxResult.value.replace(/\n{2,}/g, '\n')
                                          .replace(/\s+/g, ' ')
                                          .trim();
+            pageCount = 0;
             break;
             
           case 'xlsx':
@@ -37,23 +40,26 @@ module.exports = async (req, res) => {
               const sheet = workbook.Sheets[sheetName];
               return xlsx.utils.sheet_to_csv(sheet);
             }).join('\n').replace(/\s+/g, ' ').trim();
+            pageCount = workbook.SheetNames.length;
             break;
             
           case 'pptx':
             const pptxText = await officeParser.parseOfficeAsync(file.buffer);
             fullContent = pptxText.replace(/\s+/g, ' ').trim();
+            pageCount = 0;
             break;
             
           case 'txt':
             fullContent = file.buffer.toString('utf8')
                               .replace(/\s+/g, ' ')
                               .trim();
+            pageCount = 0;
             break;
             
           default:
-            return resolve({ content: fullContent });
+            return resolve({ content: fullContent, pageCount: 0 });
         }
-        resolve({ content: fullContent }); 
+        resolve({ content: fullContent, pageCount });
       } catch (error) {
         reject(error);
       }
