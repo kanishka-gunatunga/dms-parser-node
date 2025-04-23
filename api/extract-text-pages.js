@@ -65,7 +65,7 @@ module.exports = async (req, res) => {
             break;
             
           default:
-            return resolve({ content: fullContent, pageCount: 0 });
+            return json(content);
         }
         resolve({ content: fullContent, pageCount });
       } catch (error) {
