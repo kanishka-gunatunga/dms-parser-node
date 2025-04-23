@@ -15,9 +15,7 @@ module.exports = async (req, res) => {
   const processFile = (file) => {
     return new Promise(async (resolve, reject) => {
       const fileExtension = file.originalname.split('.').pop().toLowerCase();
-      let fullContent = "";
-      let pageCount = 0;
-
+      let content = {};
       try {
         switch (fileExtension) {
           case 'pdf':
@@ -67,7 +65,7 @@ module.exports = async (req, res) => {
           default:
             return json(content);
         }
-        resolve({ content: fullContent, pageCount });
+        res.json(content);
       } catch (error) {
         reject(error);
       }
