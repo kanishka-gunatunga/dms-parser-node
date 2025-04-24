@@ -56,9 +56,7 @@ module.exports = async (req, res) => {
           break;
 
         case 'pptx':
-          // officeparser only works with file path, not buffer.
-          // You can't use it with memoryStorage unless you write to temp file.
-          res.json(content);
+           res.json(content);
         
         case 'txt':
           const txtText = file.buffer.toString('utf-8');
