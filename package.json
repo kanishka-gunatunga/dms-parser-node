@@ -1,9 +1,9 @@
 {
   "name": "document-text-extractor",
   "version": "1.0.0",
-  "main": "extract-text.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node api/extract-text.js"
+    "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.21.2",
