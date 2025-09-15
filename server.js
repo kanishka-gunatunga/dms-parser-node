@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-app.post('/api/extract-text', extractTextPagesRoute);
+app.post('/api/extract-text', extractTextRoute);
 app.post('/api/extract-text-pages', extractTextPagesRoute); 
 
 app.listen(PORT, () => {
